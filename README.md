@@ -1,4 +1,4 @@
-# TraceRouter
+# 🌐 TraceRouter
 Plots a traceroute path on a map.
 
 <p align="center">
