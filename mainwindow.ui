@@ -124,8 +124,33 @@
      <height>20</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionExport_to_PNG"/>
+    <addaction name="separator"/>
+    <addaction name="actionDraw_Markers"/>
+    <addaction name="actionDraw_Lines"/>
+   </widget>
+   <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExport_to_PNG">
+   <property name="text">
+    <string>Export as image</string>
+   </property>
+  </action>
+  <action name="actionDraw_Markers">
+   <property name="text">
+    <string>Draw markers</string>
+   </property>
+  </action>
+  <action name="actionDraw_Lines">
+   <property name="text">
+    <string>Draw lines</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>
