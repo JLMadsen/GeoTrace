@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     manager = new QNetworkAccessManager();
 
+    ip_regex = new QRegularExpression("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
+
     geolocation_api_key = QProcessEnvironment::systemEnvironment().value("tr_api_key");
 
     origin = new Node();
@@ -92,7 +94,7 @@ void MainWindow::fetch_coordinates(Node* node) {
             if(node->position == -1)
                 draw_node(node);
 
-            if(node->position == (points-1))
+            if(node->position == (node_counter-1))
                 draw_complete_path();
 
         } else {
@@ -165,8 +167,10 @@ void MainWindow::start_trace()
     draw_node(origin);
 
     qDebug() << "Trace target: " << target->ip;
-    //trace(target);
 
+    trace(target);
+
+    /*
     // test data
     QStringList ip_list;
     ip_list << "1.1.1.1";
@@ -174,16 +178,15 @@ void MainWindow::start_trace()
     ip_list << "3.3.3.3";
     ip_list << "4.4.4.4";
 
-    int counter = 0;
     foreach(QString ip, ip_list)
     {
         Node* temp = new Node(ip);
         fetch_coordinates(temp);
-        temp->position = counter;
-        counter++;
+        temp->position = node_counter;
+        node_counter++;
         path.emplace_back(temp);
     }
-    points = counter;
+    */
 }
 
 int MainWindow::lon_to_x(QString lon, const int width) {
@@ -203,8 +206,7 @@ void MainWindow::draw_node(Node* node)
     node->x = lon_to_x(node->lon, pixmap->width());
     node->y = lat_to_y(node->lat, pixmap->height());
 
-    //qDebug() << "lon_to_x(" << node->lon << ") = " << x;
-    //qDebug() << "lat_to_y(" << node->lat << ") = " << y;
+    if(node->x == 1024 && node->y == 512) return;
 
     if(node->position != -1 && draw_lines) {
 
@@ -231,41 +233,66 @@ void MainWindow::draw_node(Node* node)
     ui->label_2->setPixmap(*pixmap);
 }
 
+// https://stackoverflow.com/questions/17338877/get-qprocess-output-in-slot
 void MainWindow::trace(Node* node)
 {
     qDebug() << "trace()";
-    QString command = "traceroute";
 
+    fetch_coordinates(target);
+
+    QString command = "traceroute";
 #ifdef _WIN32
     command = "tracert";
 #endif
-
-    QProcess* process = new QProcess(this);
-
     qDebug() << "cmd: " << command;
 
-    //process->start("sh", QStringList << command +" "+ node->ip);
-    //process->start("sh "+ command +" "+ node->ip);
-    process->start(command +" "+ node->ip);
+    process = new QProcess(this);
 
+    process->start(command, QStringList() << node->ip);
 
-    process->waitForFinished(-1);
+    process->waitForStarted();
 
-    QString out = process->readAllStandardOutput();
-    QString err = process->readAllStandardError();
+    QObject::connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(handle_output()));
+}
 
-    QString all = process->readAll();
+void MainWindow::handle_output()
+{
+    qDebug() << "handle_output()";
 
-    process->close();
+    QString data = (QString) process->readAllStandardOutput();
 
-    qDebug() << "Traceroute stdout: " << out;
-    qDebug() << "Traceroute stderr: " << err;
-    qDebug() << "Traceroute all   : " << all;
+    qDebug() << "out: " << data;
 
+    // if includes "Trace complete" set finished
+    if(data.contains("Trace complete")) {
+        qDebug() << "Trace complete!";
 
+        target->position = node_counter;
+        path.emplace_back(target);
+        node_counter++;
 
-    //QObject::connect(process, SIGNAL(process.readyReadStandard()), [=]() {
-    //});
+        draw_complete_path();
+
+        ui->statusbar->showMessage("");
+        readyToTrace = true;
+        ui->pushButton->setDisabled(0);
+        ui->lineEdit->setDisabled(0);
+    }
+
+    // extract IP adress (IPv4 for now)
+    QRegularExpressionMatch match = ip_regex->match(data);
+    if(match.hasMatch()) {
+        QString ip = match.captured(1);
+        if(!ip.contains(target->ip) && !ip.contains("192.168.0.")) {
+            qDebug() << "Found ip: " << ip;
+
+            Node* temp = new Node(ip);
+            fetch_coordinates(temp);
+            temp->position = node_counter;
+            node_counter++;
+            path.emplace_back(temp);
+        }
+    }
 }
 
 void MainWindow::export_image()

@@ -26,6 +26,9 @@
 #include <QPainter>
 #include <QPixmap>
 
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
 //#include <QGeoRoute>
 
 #include <regex>
@@ -75,19 +78,28 @@ public:
     bool readyToTrace = false;
     bool draw_markers = true;
     bool draw_lines = true;
-    int points;
+    int node_counter;
 
     // api key, get your own.
     QString geolocation_api_key;
+
+    // traceroute process
+    QProcess* process;
 
     Node* origin;
     Node* target; // temp node
     QVector<Node*> path;
 
+    // regex
+    QRegularExpression* ip_regex;;
+
 private:
     Ui::MainWindow *ui;
     QNetworkAccessManager *manager;
     QNetworkRequest request;
+
+private slots:
+    void handle_output();
 
 };
 
