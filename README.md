@@ -3,7 +3,7 @@ Plots a traceroute path on a map.
 
 <p align="center">
   
-  <img src="https://i.imgur.com/Khupsw3.gif"/>
+  <img src="https://i.imgur.com/nWSuW00.gif"/>
   
 </p>
 
