@@ -5,6 +5,11 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QObject>
+#include <QAction>
+#include <QFile>
+#include <QFileDialog>
+#include <QStandardPaths>
+#include <QVector>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
@@ -26,7 +31,6 @@
 #include <regex>
 #include <string>
 #include <string.h>
-#include <vector>
 #include <iostream>
 
 #include "node.cpp"
@@ -42,27 +46,43 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-    void start_trace();
+
+    // setup
     void fetch_origin();
     void fetch_coordinates(Node* node);
-    void draw_listview();
+
+    // main traceroute functionality
+    void start_trace();
     void trace(Node *node);
+    void cleanup_trace();
+
+    // menu options
+    void export_image();
+    void toggle_markers();
+    void toggle_lines();
+
+    // visuals
+    void draw_listview();
     void draw_node(Node* node);
+    void draw_complete_path();
+    void clear_world();
+
+    // math
     int lon_to_x(QString lon, const int width);
     int lat_to_y(QString lat, const int height);
 
+    // member values
     bool readyToTrace = false;
+    bool draw_markers = true;
+    bool draw_lines = true;
+    int points;
 
+    // api key, get your own.
     QString geolocation_api_key;
 
     Node* origin;
-    Node* target;
-    std::vector<Node*> path;
-
-    /*QString origin;
-    QString origin_coordinates[2];
-    QStringList ip_path;
-    QStringList ip_path_coordinates;*/
+    Node* target; // temp node
+    QVector<Node*> path;
 
 private:
     Ui::MainWindow *ui;
