@@ -8,26 +8,30 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qDebug() << "MainWindow()";
     ui->setupUi(this);
-    readyToTrace = false;
 
-    // attach button event to function
+    // attach button events to functions
+    connect(ui->actionExport_to_PNG, &QAction::triggered, this, &MainWindow::export_image );
+    connect(ui->actionDraw_Markers, &QAction::triggered, this, &MainWindow::toggle_markers );
+    connect(ui->actionDraw_Lines, &QAction::triggered, this, &MainWindow::toggle_lines );
     connect(ui->pushButton, &QPushButton::released, this, &MainWindow::start_trace);
+
+    ui->actionDraw_Lines->setCheckable(true);
+    ui->actionDraw_Lines->setChecked(draw_lines);
+
+    ui->actionDraw_Markers->setCheckable(true);
+    ui->actionDraw_Markers->setChecked(draw_markers);
 
     manager = new QNetworkAccessManager();
 
     geolocation_api_key = QProcessEnvironment::systemEnvironment().value("tr_api_key");
-    // qDebug() << geolocation_api_key;
 
     origin = new Node();
     target = new Node();
 
     origin->position = -1;
+    readyToTrace = false;
     ui->lineEdit->setDisabled(1);
     ui->pushButton->setDisabled(1);
-
-    // not relevant, pixmap alters resolution
-    // qDebug() << "image size: " << ui->label_2->height() << "x" << ui->label_2->width();
-
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +43,7 @@ MainWindow::~MainWindow()
 void MainWindow::fetch_origin()
 {
     qDebug() << "fetch_origin()";
+    ui->statusbar->showMessage("Fetcing my ip ...");
 
     request.setUrl(QUrl("https://api.ipify.org/?format=text"));
     QNetworkReply* reply = manager->get(request);
@@ -54,6 +59,7 @@ void MainWindow::fetch_origin()
             readyToTrace = true;
             ui->lineEdit->setDisabled(0);
             ui->pushButton->setDisabled(0);
+            ui->statusbar->showMessage("");
 
             fetch_coordinates(origin);
 
@@ -82,7 +88,12 @@ void MainWindow::fetch_coordinates(Node* node) {
             node->lon = obj["longitude"].toString();//.toDouble();
 
             draw_listview();
-            draw_node(node);
+
+            if(node->position == -1)
+                draw_node(node);
+
+            if(node->position == (points-1))
+                draw_complete_path();
 
         } else {
             qWarning() << "fetch_coordinates() failed";
@@ -106,6 +117,29 @@ void MainWindow::draw_listview()
     }
 }
 
+void MainWindow::draw_complete_path()
+{
+    draw_node(origin);
+    foreach(Node* node, path)
+    {
+        draw_node(node);
+    }
+    cleanup_trace();
+}
+
+void MainWindow::cleanup_trace()
+{
+    ui->statusbar->showMessage("");
+    readyToTrace = true;
+    ui->pushButton->setDisabled(0);
+    ui->lineEdit->setDisabled(0);
+}
+
+void MainWindow::clear_world()
+{
+    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
+}
+
 /**
  * TODO: Add cancellation of trace.
  * TODO: Add visuals to ongoing trace.
@@ -114,16 +148,21 @@ void MainWindow::start_trace()
 {
     qDebug() << "start_trace()";
 
-    // reset world image
-    path.clear();
-    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
-    draw_node(origin);
-
     target->ip = ui->lineEdit->text();
 
     if(target->ip.length() == 0) {
         return;
     }
+
+    ui->statusbar->showMessage("Tracing ...");
+    readyToTrace = false;
+    ui->pushButton->setDisabled(1);
+    ui->lineEdit->setDisabled(1);
+
+    // reset world image
+    path.clear();
+    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
+    draw_node(origin);
 
     qDebug() << "Trace target: " << target->ip;
     //trace(target);
@@ -144,6 +183,7 @@ void MainWindow::start_trace()
         counter++;
         path.emplace_back(temp);
     }
+    points = counter;
 }
 
 int MainWindow::lon_to_x(QString lon, const int width) {
@@ -156,7 +196,6 @@ void MainWindow::draw_node(Node* node)
 {
     qDebug() << "draw_node()";
     QPixmap* pixmap = new QPixmap(ui->label_2->pixmap());
-    QPixmap* image = new QPixmap(":/images/marker.png");
 
     QPainter painter(pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -167,9 +206,7 @@ void MainWindow::draw_node(Node* node)
     //qDebug() << "lon_to_x(" << node->lon << ") = " << x;
     //qDebug() << "lat_to_y(" << node->lat << ") = " << y;
 
-    const int s = 50;
-
-    if(node->position != -1) {
+    if(node->position != -1 && draw_lines) {
 
         Node* previous;
         if(node->position == 0) {
@@ -184,7 +221,12 @@ void MainWindow::draw_node(Node* node)
         painter.drawLine( previous->x, previous->y, node->x, node->y  );
     }
 
-    painter.drawPixmap( node->x-s/2, node->y-s, s, s, *image);
+    if(draw_markers) {
+        const int s = 50;
+        QPixmap* image = new QPixmap(":/images/marker.png");
+        painter.drawPixmap( node->x-s/2, node->y-s, s, s, *image);
+    }
+
     painter.end();
     ui->label_2->setPixmap(*pixmap);
 }
@@ -224,6 +266,41 @@ void MainWindow::trace(Node* node)
 
     //QObject::connect(process, SIGNAL(process.readyReadStandard()), [=]() {
     //});
-
-
 }
+
+void MainWindow::export_image()
+{
+    qDebug() << "export_image()";
+    QPixmap pixmap = ui->label_2->grab(QRect(QPoint(0, 0), QSize( ui->label_2->width(), ui->label_2->height()) ));
+
+    QString fname = QFileDialog::getSaveFileName(nullptr, "Export image", ".", "Image (*.png *.jpg)" );
+
+    if(!pixmap.toImage().save(fname))
+        qCritical("Save Failed!");
+}
+
+void MainWindow::toggle_markers()
+{
+    qDebug() << "toggle_markers()";
+    draw_markers = !draw_markers;
+    clear_world();
+    draw_complete_path();
+    ui->actionDraw_Markers->setChecked(draw_markers);
+}
+
+void MainWindow::toggle_lines()
+{
+    qDebug() << "toggle_lines()";
+    draw_lines = !draw_lines;
+    clear_world();
+    draw_complete_path();
+    ui->actionDraw_Lines->setChecked(draw_lines);
+}
+
+
+
+
+
+
+
+
