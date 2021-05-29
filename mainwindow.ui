@@ -13,13 +13,50 @@
   <property name="windowTitle">
    <string>TraceRouter</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+	background: #23272A;
+	font: 8pt &quot;Consolas&quot;;
+}
+
+QPushButton {
+	background: #7289DA;
+	color: white;
+}
+
+QListWidget {
+	color: white;
+	background: #2C2F33;
+}
+
+QMenuBar {
+	background: #2C2F33;
+	color: white;
+}
+
+QLabel {
+	color: white;
+}
+
+QLabel[objectName^=&quot;label_2&quot;] {
+	box-shadow: 4px 4px 4px 4px red;
+}
+
+QLineEdit {
+	background: #99AAB5;
+}
+
+QStatusBar {
+	color: white; /**/
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1241</width>
+      <width>1242</width>
       <height>531</height>
      </rect>
     </property>
@@ -41,7 +78,7 @@
           <bool>false</bool>
          </property>
          <property name="placeholderText">
-          <string>Target IP</string>
+          <string>_</string>
          </property>
         </widget>
        </item>
@@ -132,6 +169,8 @@
     <addaction name="separator"/>
     <addaction name="actionDraw_Markers"/>
     <addaction name="actionDraw_Lines"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy_GPS_to_Clipboard"/>
    </widget>
    <addaction name="menuMenu"/>
   </widget>
@@ -149,6 +188,11 @@
   <action name="actionDraw_Lines">
    <property name="text">
     <string>Draw lines</string>
+   </property>
+  </action>
+  <action name="actionCopy_GPS_to_Clipboard">
+   <property name="text">
+    <string>Copy GPS to Clipboard</string>
    </property>
   </action>
  </widget>

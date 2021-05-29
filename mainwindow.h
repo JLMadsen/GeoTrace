@@ -10,6 +10,8 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QVector>
+#include <QClipboard>
+#include <QThread>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
@@ -63,6 +65,7 @@ public:
     void export_image();
     void toggle_markers();
     void toggle_lines();
+    void gps_clipboard();
 
     // visuals
     void draw_listview();
