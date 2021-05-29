@@ -243,7 +243,7 @@ void MainWindow::handle_output()
 
     // if includes "Trace complete" set finished
     if(data.contains("Trace complete")) {
-        qDebug() << "Trace complete!";
+        qDebug() << "Trace complete !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
         target->position = node_counter;
         path.emplace_back(target);
