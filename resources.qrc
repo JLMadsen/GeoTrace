@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/images">
-        <file>temp_map.png</file>
         <file>world.jpg</file>
         <file>marker.png</file>
         <file>favicon.png</file>
