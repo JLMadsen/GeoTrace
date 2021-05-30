@@ -1,23 +1,26 @@
-# 🌍 TraceRouter (Work in progress 👷‍♂️)
+# 🌍 GeoTrace
 Plots a traceroute path on a map. 
 
 <p align="center">
   
-  <img src="https://i.imgur.com/CmsYPLm.gif"/>
+  <img src="https://i.imgur.com/nWSuW00.gif"/>
   
 </p>
 
 Made with <a href="https://www.qt.io/">Qt</a>!
 
+## Features
+
+* Draw with or without orange markers.
+* Draw with or without green lines.
+* Export map as image (png / jpg).
+* Export GPS path.
+* Export x, y path.
+* Export traceroute output.
+
 ## Usage
 
-Currently using my private geolocation API key, get your own here: https://ipgeolocation.io/
-
-Create an enviornment variable `tr_api_key` with the API key as value.
-
-```c++
-geolocation_api_key = QProcessEnvironment::systemEnvironment().value("tr_api_key");
-```
+Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
 
 ## About
 
@@ -29,3 +32,7 @@ Watching the development of <a href="https://github.com/SerenityOS/serenity">Ser
 
 * Make GUI elements responsive.
 * Fix random crashes.
+* Better design / styling.
+* Interactive map.
+* Make short paths easier to see
+  * Either with interactive map or zooming. 
