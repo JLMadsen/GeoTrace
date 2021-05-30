@@ -21,9 +21,7 @@ HEADERS += \
     mainwindow.h
 
 FORMS += \
-    form.ui \
     mainwindow.ui \
-    mainwindow_responsive.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
