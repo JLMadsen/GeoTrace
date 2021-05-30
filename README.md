@@ -9,6 +9,15 @@ Plots a traceroute path on a map.
 
 Made with <a href="https://www.qt.io/">Qt</a>!
 
+## Features
+
+* Draw with or without orange markers.
+* Draw with or without green lines.
+* Export map as image (png / jpg).
+* Export GPS path.
+* Export x, y path.
+* Export tracerout command output.
+
 ## Usage
 
 Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
