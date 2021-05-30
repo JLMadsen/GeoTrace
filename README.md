@@ -16,7 +16,7 @@ Made with <a href="https://www.qt.io/">Qt</a>!
 * Export map as image (png / jpg).
 * Export GPS path.
 * Export x, y path.
-* Export tracerout command output.
+* Export traceroute output.
 
 ## Usage
 
