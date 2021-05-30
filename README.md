@@ -29,3 +29,5 @@ Watching the development of <a href="https://github.com/SerenityOS/serenity">Ser
 
 * Make GUI elements responsive.
 * Fix random crashes.
+* Better design / styling
+* Interactive map
