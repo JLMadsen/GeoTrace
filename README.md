@@ -25,3 +25,5 @@ Watching the development of <a href="https://github.com/SerenityOS/serenity">Ser
 * Fix random crashes.
 * Better design / styling.
 * Interactive map.
+* Make short paths easier to see
+  * Either with interactive map or zooming. 
