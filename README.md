@@ -1,4 +1,4 @@
-# 🌐 TraceRouter (Work in progress 👷‍♂️)
+# 🌍 TraceRouter (Work in progress 👷‍♂️)
 Plots a traceroute path on a map. 
 
 <p align="center">

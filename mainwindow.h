@@ -12,6 +12,9 @@
 #include <QVector>
 #include <QClipboard>
 #include <QThread>
+#include <QInputDialog>
+#include <QToolButton>
+#include <QAbstractButton>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
@@ -60,12 +63,17 @@ public:
     void start_trace();
     void trace(Node *node);
     void cleanup_trace();
+    void stop_trace();
+    void set_trace_status(bool ready);
 
     // menu options
     void export_image();
     void toggle_markers();
     void toggle_lines();
     void gps_clipboard();
+    void xy_clipboard();
+    void tr_clipboard();
+    void add_api_key();
 
     // visuals
     void draw_listview();
@@ -78,7 +86,7 @@ public:
     int lat_to_y(QString lat, const int height);
 
     // member values
-    bool readyToTrace = false;
+    QString raw_traceroute;
     bool draw_markers = true;
     bool draw_lines = true;
     int node_counter;

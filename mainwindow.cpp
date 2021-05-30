@@ -8,13 +8,19 @@ MainWindow::MainWindow(QWidget *parent)
 {
     qDebug() << "MainWindow()";
     ui->setupUi(this);
+    origin = new Node();
+    target = new Node();
 
     // attach button events to functions
+    connect(ui->actionCopy_Traceroute_to_Clipboard, &QAction::triggered, this, &MainWindow::tr_clipboard);
     connect(ui->actionCopy_GPS_to_Clipboard, &QAction::triggered, this, &MainWindow::gps_clipboard );
+    connect(ui->actionCopy_X_Y_to_Clipboard, &QAction::triggered, this, &MainWindow::xy_clipboard );
     connect(ui->actionDraw_Markers, &QAction::triggered, this, &MainWindow::toggle_markers );
     connect(ui->actionExport_to_PNG, &QAction::triggered, this, &MainWindow::export_image );
     connect(ui->actionDraw_Lines, &QAction::triggered, this, &MainWindow::toggle_lines );
-    connect(ui->pushButton, &QPushButton::released, this, &MainWindow::start_trace);
+    connect(ui->actionAdd_API_key, &QAction::triggered, this, &MainWindow::add_api_key);
+    connect(ui->toolButton, &QAbstractButton::released, this, &MainWindow::stop_trace);
+    connect(ui->pushButton, &QAbstractButton::released, this, &MainWindow::start_trace);
 
     ui->actionDraw_Lines->setCheckable(true);
     ui->actionDraw_Lines->setChecked(draw_lines);
@@ -23,23 +29,25 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionDraw_Markers->setChecked(draw_markers);
 
     manager = new QNetworkAccessManager();
-
     ip_regex = new QRegularExpression("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
-
     geolocation_api_key = QProcessEnvironment::systemEnvironment().value("tr_api_key");
 
-    origin = new Node();
-    target = new Node();
+    set_trace_status(false);
+    ui->toolButton->setVisible(0);
 
-    readyToTrace = false;
-    ui->lineEdit->setDisabled(1);
-    ui->pushButton->setDisabled(1);
+    if(geolocation_api_key.isEmpty()) {
+        ui->statusbar->showMessage("Missing API key");
+    } else {
+        fetch_origin();
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete manager;
+
+    process->close();
 }
 
 void MainWindow::fetch_origin()
@@ -57,9 +65,7 @@ void MainWindow::fetch_origin()
             origin->ip = QString(response);
             ui->label->setText("My IP: " + origin->ip );
 
-            readyToTrace = true;
-            ui->lineEdit->setDisabled(0);
-            ui->pushButton->setDisabled(0);
+            set_trace_status(true);
             ui->statusbar->showMessage("");
 
             fetch_coordinates(origin);
@@ -126,9 +132,14 @@ void MainWindow::draw_complete_path()
 void MainWindow::cleanup_trace()
 {
     ui->statusbar->showMessage("");
-    readyToTrace = true;
-    ui->pushButton->setDisabled(0);
-    ui->lineEdit->setDisabled(0);
+    set_trace_status(true);
+    ui->toolButton->setVisible(0);
+}
+
+void MainWindow::set_trace_status(bool ready)
+{
+    ui->lineEdit->setDisabled( !ready );
+    ui->pushButton->setDisabled( !ready );
 }
 
 void MainWindow::clear_world()
@@ -200,9 +211,8 @@ void MainWindow::start_trace()
     }
 
     ui->statusbar->showMessage("Tracing ...");
-    readyToTrace = false;
-    ui->pushButton->setDisabled(1);
-    ui->lineEdit->setDisabled(1);
+    set_trace_status(false);
+    ui->toolButton->setVisible(1);
 
     // reset world image
     path.clear();
@@ -236,10 +246,18 @@ void MainWindow::trace(Node* node)
     QObject::connect(process, SIGNAL(readyReadStandardOutput()), this, SLOT(handle_output()));
 }
 
+void MainWindow::stop_trace()
+{
+    qDebug() << "stop_trace()";
+    process->close();
+    cleanup_trace();
+}
+
 void MainWindow::handle_output()
 {
     qDebug() << "handle_output()";
     QString data = (QString) process->readAllStandardOutput();
+    raw_traceroute += data + "\n";
 
     // if includes "Trace complete" set finished
     if(data.contains("Trace complete")) {
@@ -301,17 +319,13 @@ void MainWindow::toggle_lines()
 void MainWindow::gps_clipboard()
 {
     QString string;
-
     string += origin->lat + ',' + origin->lon +'\n';
-
     foreach(Node* node, path) {
         string += node->lat + ',' + node->lon +'\n';
     }
 
     QClipboard* clipboard = QApplication::clipboard();
-
     clipboard->setText(string, QClipboard::Clipboard);
-
     if (clipboard->supportsSelection()) {
         clipboard->setText(string, QClipboard::Selection);
     }
@@ -321,6 +335,63 @@ void MainWindow::gps_clipboard()
     #endif
 }
 
+void MainWindow::xy_clipboard()
+{
+    QString string;
+    string += QString::number(origin->x) + ',' + QString::number(origin->y) +'\n';
+    foreach(Node* node, path) {
+        string += QString::number(node->x) + ',' + QString::number(node->y) +'\n';
+    }
+
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->setText(string, QClipboard::Clipboard);
+    if (clipboard->supportsSelection()) {
+        clipboard->setText(string, QClipboard::Selection);
+    }
+
+    #if defined(Q_OS_LINUX)
+        QThread::msleep(1); //workaround for copied text not being available...
+    #endif
+}
+
+void MainWindow::tr_clipboard()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    clipboard->setText(raw_traceroute, QClipboard::Clipboard);
+    if (clipboard->supportsSelection()) {
+        clipboard->setText(raw_traceroute, QClipboard::Selection);
+    }
+
+    #if defined(Q_OS_LINUX)
+        QThread::msleep(1); //workaround for copied text not being available...
+    #endif
+}
+
+void MainWindow::add_api_key()
+{
+    qDebug() << "add_api_key()";
+
+    bool ok;
+    QString input = QInputDialog::getText(
+                0,
+                "Add API key",
+                "API key:",
+                QLineEdit::Normal,
+                "",
+                &ok
+                );
+
+    if(ok && !input.isEmpty()) {
+        qDebug() << "Dialog input: " << input;
+
+        // did not work
+        // QProcessEnvironment::systemEnvironment().insert("tr_api_key", input);
+
+        // temporary fix
+        geolocation_api_key = input;
+        fetch_origin();
+    }
+}
 
 
 

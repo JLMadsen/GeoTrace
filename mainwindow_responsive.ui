@@ -6,19 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1276</width>
-    <height>595</height>
+    <width>1305</width>
+    <height>598</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GeoTracer</string>
+   <string>TraceRouter</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">* {
-	margin: 2px;
-}
-
-QMainWindow {
+   <string notr="true">QMainWindow {
 	background: #23272A;
 	font: 8pt &quot;Consolas&quot;;
 }
@@ -30,18 +26,12 @@ QPushButton {
 
 QListWidget {
 	color: white;
-	/*background: #2C2F33; /**/
-	/*background: rgb(47, 50, 54); /**/
-	background: rgb(64, 68, 75);
-	border-radius: 10px;
+	background: #2C2F33;
 }
 
 QMenuBar {
-	/*background: #2C2F33; /**/
-	/*background: rgb(47, 50, 54); /**/
-	background: rgb(64, 68, 75);
+	background: #2C2F33;
 	color: white;
-
 }
 
 QLabel {
@@ -49,35 +39,29 @@ QLabel {
 }
 
 QLabel[objectName^=&quot;label_2&quot;] {
-	border-radius: 10px;
+	box-shadow: 4px 4px 4px 4px red;
 }
 
 QLineEdit {
-	background: white;
-	padding: 5px;
-	border-radius: 10px;
-	border: 0px;
+	background: #99AAB5;
 }
 
 QStatusBar {
 	color: white; /**/
 }</string>
   </property>
-  <property name="tabShape">
-   <enum>QTabWidget::Rounded</enum>
-  </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="horizontalLayoutWidget">
+   <widget class="QWidget" name="horizontalWidget" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1242</width>
-      <height>531</height>
+      <width>1282</width>
+      <height>541</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QLineEdit" name="lineEdit">
@@ -105,8 +89,7 @@ QStatusBar {
            <property name="styleSheet">
             <string notr="true">QToolButton {
 
-	/* background: rgb(200, 45, 53); /**/
-	background: rgb(255, 65, 65);
+	background: rgb(200, 45, 53);
 
 }</string>
            </property>
@@ -155,7 +138,7 @@ QStatusBar {
        </item>
       </layout>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QWidget" name="widget" native="true">
        <property name="minimumSize">
         <size>
@@ -192,8 +175,8 @@ QStatusBar {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1276</width>
-     <height>24</height>
+     <width>1305</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
@@ -202,8 +185,6 @@ QStatusBar {
     </property>
     <addaction name="actionExport_to_PNG"/>
     <addaction name="actionCopy_GPS_to_Clipboard"/>
-    <addaction name="actionCopy_X_Y_to_Clipboard"/>
-    <addaction name="actionCopy_Traceroute_to_Clipboard"/>
     <addaction name="separator"/>
     <addaction name="actionDraw_Markers"/>
     <addaction name="actionDraw_Lines"/>
@@ -236,16 +217,6 @@ QStatusBar {
   <action name="actionAdd_API_key">
    <property name="text">
     <string>Add API key</string>
-   </property>
-  </action>
-  <action name="actionCopy_X_Y_to_Clipboard">
-   <property name="text">
-    <string>Copy X,Y to Clipboard</string>
-   </property>
-  </action>
-  <action name="actionCopy_Traceroute_to_Clipboard">
-   <property name="text">
-    <string>Copy Traceroute to Clipboard</string>
    </property>
   </action>
  </widget>

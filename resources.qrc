@@ -2,6 +2,7 @@
     <qresource prefix="/images">
         <file>world.jpg</file>
         <file>marker.png</file>
-        <file>favicon.png</file>
+        <file>favicon.ico</file>
+        <file>README.md</file>
     </qresource>
 </RCC>
