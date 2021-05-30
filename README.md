@@ -11,13 +11,7 @@ Made with <a href="https://www.qt.io/">Qt</a>!
 
 ## Usage
 
-Currently using my private geolocation API key, get your own here: https://ipgeolocation.io/
-
-Create an enviornment variable `tr_api_key` with the API key as value.
-
-```c++
-geolocation_api_key = QProcessEnvironment::systemEnvironment().value("tr_api_key");
-```
+Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
 
 ## About
 
@@ -29,5 +23,5 @@ Watching the development of <a href="https://github.com/SerenityOS/serenity">Ser
 
 * Make GUI elements responsive.
 * Fix random crashes.
-* Better design / styling
-* Interactive map
+* Better design / styling.
+* Interactive map.
