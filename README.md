@@ -2,9 +2,7 @@
 Plots a traceroute path on a map. 
 
 <p align="center">
-  
   <img src="https://i.imgur.com/wmvmjMR.gif"/>
-  
 </p>
 
 Made with <a href="https://www.qt.io/">Qt</a>!
@@ -22,12 +20,6 @@ Made with <a href="https://www.qt.io/">Qt</a>!
 
 Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
 
-## About
-
-This program was made in the span of a week as one of my side projects during the summer.
-
-Watching the development of <a href="https://github.com/SerenityOS/serenity">SerenityOS</a> made me want to give C++ another try.
-
 ## Options
 
 There are a couple optional ways to draw the map:
@@ -43,5 +35,11 @@ Lines                   |Arrows                   | Markers
 * Fix random crashes.
 * Better design / styling.
 * Interactive map.
-* Make short paths easier to see
-  * Either with interactive map or zooming. 
+* Make short paths easier to see.
+
+## About
+
+This program was made in the span of a week as one of my side projects during the summer.
+
+Watching the development of <a href="https://github.com/SerenityOS/serenity">SerenityOS</a> made me want to give C++ another try.
+
