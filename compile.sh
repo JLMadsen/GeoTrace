@@ -26,10 +26,12 @@ find . -name "*.cpp" -type f -delete
 echo "Run windeployqt"
 windeployqt GeoTrace.exe                > /dev/null 2>&1
 
+# get files from here https://slproweb.com/download/Win64OpenSSL_Light-1_1_1k.exe
 echo "Copy libssl"
 cp "C:\Users\Jakob\Documents\openSSL_dlls\libssl-1_1-x64.dll" .
 echo "Copy libcrypto"
 cp "C:\Users\Jakob\Documents\openSSL_dlls\libcrypto-1_1-x64.dll" .
 
 echo "Build complete"
+# sleep to show echos
 sleep 2
