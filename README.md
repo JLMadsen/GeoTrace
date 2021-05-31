@@ -7,7 +7,7 @@ Plots a traceroute path on a map.
 
 Made with <a href="https://www.qt.io/">Qt</a>!
 
-## Features
+## _Features_
 
 * Draw with or without orange markers.
 * Draw with or without green lines.
@@ -16,11 +16,11 @@ Made with <a href="https://www.qt.io/">Qt</a>!
 * Export x, y path.
 * Export traceroute output.
 
-## Usage
+## _Usage_
 
 Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
 
-## Options
+## _Options_
 
 There are a couple optional ways to draw the map:
 
@@ -29,7 +29,7 @@ Lines                   |Arrows                   | Markers
 ![](./examples/line.png)|![](./examples/arrow.png)|![](./examples/markers.png)|
 
 
-## Todo
+## _Todo_
 
 * Make GUI elements responsive.
 * Fix random crashes.
@@ -37,7 +37,7 @@ Lines                   |Arrows                   | Markers
 * Interactive map.
 * Make short paths easier to see.
 
-## About
+## _About_
 
 This program was made in the span of a week as one of my side projects during the summer.
 
