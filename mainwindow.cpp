@@ -35,10 +35,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->statusbar->setStyleSheet("color: gray");
 
     // fix placeholder color
-    connect(ui->lineEdit, &QLineEdit::textChanged, [=]{
-        if(ui->lineEdit->text().isEmpty()) {
+    connect(ui->lineEdit, &QLineEdit::textChanged, [=]
+    {
+        if(ui->lineEdit->text().isEmpty())
+        {
             ui->lineEdit->setStyleSheet("color: gray;");
-        } else {
+        } else
+        {
             ui->lineEdit->setStyleSheet("color: black;");
         }
     });
@@ -50,9 +53,11 @@ MainWindow::MainWindow(QWidget *parent)
     set_trace_status(false);
     ui->toolButton->setVisible(0);
 
-    if(geolocation_api_key.isEmpty()) {
+    if(geolocation_api_key.isEmpty())
+    {
         ui->statusbar->showMessage("Missing API key");
-    } else {
+    } else
+    {
         fetch_origin();
     }
 
@@ -80,9 +85,6 @@ MainWindow::~MainWindow()
     delete purple_marker;
 
     process->close();
-
-    node_counter = NULL;
-
 }
 
 void MainWindow::fetch_origin()
@@ -93,7 +95,8 @@ void MainWindow::fetch_origin()
     request.setUrl(QUrl("https://api.ipify.org/?format=text"));
     QNetworkReply* reply = manager->get(request);
 
-    connect(reply, &QNetworkReply::finished, [=]() {
+    connect(reply, &QNetworkReply::finished, [=]()
+    {
         if(reply->error() == QNetworkReply::NoError)
         {
             QByteArray response = reply->readAll();
@@ -105,7 +108,8 @@ void MainWindow::fetch_origin()
 
             fetch_coordinates(origin);
 
-        } else {
+        } else
+        {
             ui->label->setText("Could not get IP");
             ui->label->setStyleSheet("QLabel { color : red; }");
             qWarning() << "fetch_origin() failed";
@@ -116,15 +120,18 @@ void MainWindow::fetch_origin()
 void MainWindow::fetch_coordinates(Node* node) {
     qDebug() << "fetch_coordinates(" << node->ip <<")";
 
-    if( QHostAddress(node->ip).isNull() ) {
+    if( QHostAddress(node->ip).isNull() )
+    {
         request.setUrl(QUrl("https://api.ipgeolocation.io/ipgeo?apiKey="+ geolocation_api_key +"&dns="+ node->ip +"&fields=geo"));
-    } else {
+    } else
+    {
         request.setUrl(QUrl("https://api.ipgeolocation.io/ipgeo?apiKey="+ geolocation_api_key +"&ip="+ node->ip +"&fields=geo"));
     }
 
     QNetworkReply* reply = manager->get(request);
 
-    connect(reply, &QNetworkReply::finished, [=]() {
+    connect(reply, &QNetworkReply::finished, [=]()
+    {
 
         if(reply->error() == QNetworkReply::NoError)
         {
@@ -138,7 +145,8 @@ void MainWindow::fetch_coordinates(Node* node) {
             draw_node(node);
             //draw_complete_path();
 
-        } else {
+        } else
+        {
             qWarning() << "fetch_coordinates( " << node->position << " ) failed";
 
             path.removeOne(node);
@@ -219,16 +227,18 @@ void MainWindow::draw_node(Node* node)
     if(node != origin && draw_lines) {
 
         Node* previous;
-        if(node->position == 0) {
+        if(node->position == 0)
+        {
             previous = origin;
 
-        } else {
+        } else
+        {
             foreach(Node* prev, path)
                 if(prev->position == (node->position - 1))
                     previous = prev;
         }
-
-        if(previous->x != 1024 && previous->y != 512) {
+        if(previous->x != 1024 && previous->y != 512)
+        {
             qDebug() << "Line from " << previous->x <<","<< previous->y <<" -> "<< node->x<<","<<node->y;
             painter.setPen( QPen(Qt::green, 4, Qt::DashDotLine, Qt::RoundCap) ); //QPen( Qt::green, 12, Qt::RightArrow, Qt::RoundCap ));
 
@@ -237,6 +247,7 @@ void MainWindow::draw_node(Node* node)
             } else {
                 painter.drawLine( previous->x, previous->y, node->x, node->y  );
             }
+
         }
     }
 
@@ -261,24 +272,22 @@ void MainWindow::start_trace()
 {
     qDebug() << "start_trace()";
 
-    target = new Node;
-    target->ip = ui->lineEdit->text();
-
-    if(target->ip.length() == 0) {
+    if(target->ip.length() == 0)
+    {
         return;
     }
 
+    target = new Node;
+    target->ip = ui->lineEdit->text();
+    ui->listWidget->clear();
+    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
+    draw_node(origin);
     raw_traceroute = "";
     node_counter = 0;
     path.clear();
-
     ui->statusbar->showMessage("Tracing ...");
     set_trace_status(false);
-    ui->toolButton->setVisible(1);
-
-    // reset world image
-    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
-    draw_node(origin);
+    ui->toolButton->setVisible(1); 
 
     qDebug() << "Trace target: " << target->ip;
 
@@ -326,7 +335,8 @@ void MainWindow::handle_output()
     raw_traceroute += data + "\n";
 
     // if includes "Trace complete" set finished
-    if(data.contains("Trace complete")) {
+    if(data.contains("Trace complete"))
+    {
         qDebug() << "Trace complete !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
 
         target->position = node_counter;
@@ -340,9 +350,11 @@ void MainWindow::handle_output()
 
     // extract IP adress (IPv4 for now)
     QRegularExpressionMatch match = ip_regex->match(data);
-    if(match.hasMatch()) {
+    if(match.hasMatch())
+    {
         QString ip = match.captured(1);
-        if(!ip.contains(target->ip) && !ip.contains("192.168.")) {
+        if(!ip.contains(target->ip) && !ip.contains("192.168."))
+        {
             qDebug() << "Found ip: " << ip;
 
             Node* temp = new Node(ip);
@@ -403,7 +415,8 @@ void MainWindow::gps_clipboard()
 
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->setText(string, QClipboard::Clipboard);
-    if (clipboard->supportsSelection()) {
+    if (clipboard->supportsSelection())
+    {
         clipboard->setText(string, QClipboard::Selection);
     }
 
@@ -416,13 +429,15 @@ void MainWindow::xy_clipboard()
 {
     QString string;
     string += QString::number(origin->x) + ',' + QString::number(origin->y) +'\n';
-    foreach(Node* node, path) {
+    foreach(Node* node, path)
+    {
         string += QString::number(node->x) + ',' + QString::number(node->y) +'\n';
     }
 
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->setText(string, QClipboard::Clipboard);
-    if (clipboard->supportsSelection()) {
+    if (clipboard->supportsSelection())
+    {
         clipboard->setText(string, QClipboard::Selection);
     }
 
@@ -435,7 +450,8 @@ void MainWindow::tr_clipboard()
 {
     QClipboard* clipboard = QApplication::clipboard();
     clipboard->setText(raw_traceroute, QClipboard::Clipboard);
-    if (clipboard->supportsSelection()) {
+    if (clipboard->supportsSelection())
+    {
         clipboard->setText(raw_traceroute, QClipboard::Selection);
     }
 
@@ -458,7 +474,8 @@ void MainWindow::add_api_key()
                 &ok
                 );
 
-    if(ok && !input.isEmpty()) {
+    if(ok && !input.isEmpty())
+    {
         qDebug() << "Dialog input: " << input;
 
         // did not work
