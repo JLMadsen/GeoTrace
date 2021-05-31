@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     if(geolocation_api_key.isEmpty())
     {
         ui->statusbar->showMessage("Missing API key");
+        add_api_key();
     } else
     {
         fetch_origin();
@@ -112,6 +113,7 @@ void MainWindow::fetch_origin()
         {
             ui->label->setText("Could not get IP");
             ui->label->setStyleSheet("QLabel { color : red; }");
+            ui->statusbar->showMessage(reply->errorString());
             qWarning() << "fetch_origin() failed";
         }
     });
@@ -272,19 +274,24 @@ void MainWindow::start_trace()
 {
     qDebug() << "start_trace()";
 
+    target = new Node;
+    target->ip = ui->lineEdit->text();
+
     if(target->ip.length() == 0)
     {
         return;
     }
+    path.clear();
+    node_counter = 0;
 
-    target = new Node;
-    target->ip = ui->lineEdit->text();
     ui->listWidget->clear();
+    draw_listview();
+
     ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
     draw_node(origin);
+
     raw_traceroute = "";
-    node_counter = 0;
-    path.clear();
+
     ui->statusbar->showMessage("Tracing ...");
     set_trace_status(false);
     ui->toolButton->setVisible(1); 
