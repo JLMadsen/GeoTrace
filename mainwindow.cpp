@@ -317,7 +317,10 @@ void MainWindow::handle_output()
     qDebug() << "handle_output()";
 
     QString data = (QString) process->readAllStandardOutput();
-    ui->statusbar->showMessage(data);
+
+    if(data.length() > 5)
+        ui->statusbar->showMessage(data);
+
     raw_traceroute += data + "\n";
 
     // if includes "Trace complete" set finished
