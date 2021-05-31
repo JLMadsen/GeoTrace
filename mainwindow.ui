@@ -6,32 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1276</width>
-    <height>595</height>
+    <width>1263</width>
+    <height>589</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>GeoTrace</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">* {
-	margin: 2px;
+   <string notr="true">/* ALL */
+* {
+	margin: 1px;
 }
 
+/* Buttons */
 QAbstractButton {
 	margin: 0px;
+	padding: 0px;
+}
+QPushButton {
+	background: #7289DA;
+	color: white;
+}
+QToolButton {
+	background: rgb(255, 65, 65);
+
 }
 
+/* Main Window */
 QMainWindow {
 	background: #23272A;
 	font: 8pt &quot;Consolas&quot;;
 }
 
-QPushButton {
-	background: #7289DA;
-	color: white;
-}
-
+/* List */
 QListWidget {
 	color: white;
 	/*background: #2C2F33; /**/
@@ -40,6 +48,7 @@ QListWidget {
 	border-radius: 10px;
 }
 
+/* Menu bar */
 QMenuBar {
 	/*background: #2C2F33; /**/
 	/*background: rgb(47, 50, 54); /**/
@@ -48,17 +57,17 @@ QMenuBar {
 
 }
 
+/* Label */
 QLabel {
 	color: white;
 }
 
+/* Map Label */
 QLabel[objectName^=&quot;label_2&quot;] {
 	border-radius: 10px;
 }
 
-/*QLineEdit[text=&quot;&quot;] { 
-	color:gray; 
-}*/
+/* Line edit */
 QLineEdit {
 	background: white;
 	padding: 5px;
@@ -67,6 +76,7 @@ QLineEdit {
 	color: grey;
 }
 
+/* Status Bar */
 QStatusBar {
 	color: white; /**/
 }</string>
@@ -110,13 +120,14 @@ QStatusBar {
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QToolButton" name="toolButton">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="styleSheet">
-            <string notr="true">QToolButton {
-
-	/* background: rgb(200, 45, 53); /**/
-	background: rgb(255, 65, 65);
-
-}</string>
+            <string notr="true"/>
            </property>
            <property name="text">
             <string>X</string>
@@ -125,6 +136,12 @@ QStatusBar {
          </item>
          <item>
           <widget class="QPushButton" name="pushButton">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
            <property name="toolTip">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Start traceroute to target IP or DNS in input above.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
@@ -200,8 +217,8 @@ QStatusBar {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1276</width>
-     <height>24</height>
+     <width>1263</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
