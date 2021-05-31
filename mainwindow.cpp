@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionDraw_arrows->setCheckable(true);
     ui->actionDraw_arrows->setChecked(draw_arrows);
 
+    ui->statusbar->setStyleSheet("color: gray");
+
     // fix placeholder color
     connect(ui->lineEdit, &QLineEdit::textChanged, [=]{
         if(ui->lineEdit->text().isEmpty()) {
@@ -158,12 +160,12 @@ void MainWindow::draw_listview()
     ui->listWidget->clear();
 
     ui->listWidget->addItem(origin->ip);
-    ui->listWidget->addItem(("("+ origin->lat +", "+ origin->lon +")"));
+    //ui->listWidget->addItem(("("+ origin->lat +", "+ origin->lon +")"));
 
     foreach(Node* node, path)
     {
         ui->listWidget->addItem(node->ip);
-        ui->listWidget->addItem(("("+ node->lat +", "+ node->lon +")"));
+        //ui->listWidget->addItem(("("+ node->lat +", "+ node->lon +")"));
     }
 }
 
