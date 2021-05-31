@@ -1,9 +1,17 @@
 #!/bin/sh
 
-echo "Compiling Qt project"
-echo "Start qmake"
+# Simple shell script for building a dynamic build of a Qt application.
+# Should work for most projects.
+# If you want to use this remember to change filename on windeployqt and
+# supply your own LibSSL and LibCrypto dll.
+# LibSSL and LibCrypto are only necessary if the application uses HTTPS requests.
+# Not tested this on Linux yet.
+
+echo "Building Qt project"
+
+echo "Run qmake"
 qmake                                   > /dev/null 2>&1
-echo "Start mingw32-make"
+echo "Run mingw32-make"
 mingw32-make                            > /dev/null 2>&1
 
 cd ./release
@@ -15,7 +23,7 @@ find . -name "*.h" -type f -delete
 echo "Delete build files - *.cpp"
 find . -name "*.cpp" -type f -delete
 
-echo "Start windeployqt"
+echo "Run windeployqt"
 windeployqt GeoTrace.exe                > /dev/null 2>&1
 
 echo "Copy libssl"
