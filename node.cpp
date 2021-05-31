@@ -14,6 +14,8 @@ struct Node {
     mutable int position;
     mutable int x;
     mutable int y;
+
+    mutable bool dead = false;
 };
 
 
