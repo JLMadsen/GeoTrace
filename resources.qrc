@@ -4,5 +4,7 @@
         <file>marker.png</file>
         <file>favicon.ico</file>
         <file>README.md</file>
+        <file>marker_green.png</file>
+        <file>marker_magenta.png</file>
     </qresource>
 </RCC>
