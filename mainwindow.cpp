@@ -11,22 +11,35 @@ MainWindow::MainWindow(QWidget *parent)
     origin = new Node();
     target = new Node();
 
-    // attach button events to functions
+    // attach button events to functions   actionDraw_arrows
     connect(ui->actionCopy_Traceroute_to_Clipboard, &QAction::triggered, this, &MainWindow::tr_clipboard);
     connect(ui->actionCopy_GPS_to_Clipboard, &QAction::triggered, this, &MainWindow::gps_clipboard );
     connect(ui->actionCopy_X_Y_to_Clipboard, &QAction::triggered, this, &MainWindow::xy_clipboard );
     connect(ui->actionDraw_Markers, &QAction::triggered, this, &MainWindow::toggle_markers );
     connect(ui->actionExport_to_PNG, &QAction::triggered, this, &MainWindow::export_image );
+    connect(ui->actionDraw_arrows, &QAction::triggered, this, &MainWindow::toggle_arrows );
     connect(ui->actionDraw_Lines, &QAction::triggered, this, &MainWindow::toggle_lines );
-    connect(ui->actionAdd_API_key, &QAction::triggered, this, &MainWindow::add_api_key);
-    connect(ui->toolButton, &QAbstractButton::released, this, &MainWindow::stop_trace);
-    connect(ui->pushButton, &QAbstractButton::released, this, &MainWindow::start_trace);
+    connect(ui->actionAdd_API_key, &QAction::triggered, this, &MainWindow::add_api_key );
+    connect(ui->pushButton, &QAbstractButton::released, this, &MainWindow::start_trace );
+    connect(ui->toolButton, &QAbstractButton::released, this, &MainWindow::stop_trace );
 
     ui->actionDraw_Lines->setCheckable(true);
     ui->actionDraw_Lines->setChecked(draw_lines);
 
     ui->actionDraw_Markers->setCheckable(true);
     ui->actionDraw_Markers->setChecked(draw_markers);
+
+    ui->actionDraw_arrows->setCheckable(true);
+    ui->actionDraw_arrows->setChecked(draw_arrows);
+
+    // fix placeholder color
+    connect(ui->lineEdit, &QLineEdit::textChanged, [=]{
+        if(ui->lineEdit->text().isEmpty()) {
+            ui->lineEdit->setStyleSheet("color: gray;");
+        } else {
+            ui->lineEdit->setStyleSheet("color: black;");
+        }
+    });
 
     manager = new QNetworkAccessManager();
     ip_regex = new QRegularExpression("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})");
@@ -40,14 +53,34 @@ MainWindow::MainWindow(QWidget *parent)
     } else {
         fetch_origin();
     }
+
+    orange_marker = new QPixmap(":/images/marker.png");
+    green_marker = new QPixmap(":/images/marker_green.png");
+    purple_marker = new QPixmap(":/images/marker_magenta.png");
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete manager;
+    delete selected;
+    delete origin;
+    delete target;
+
+    foreach(Node* n, path)
+        delete n;
+
+    delete ip_regex;
+    delete process;
+
+    delete green_marker;
+    delete orange_marker;
+    delete purple_marker;
 
     process->close();
+
+    node_counter = NULL;
+
 }
 
 void MainWindow::fetch_origin()
@@ -81,7 +114,12 @@ void MainWindow::fetch_origin()
 void MainWindow::fetch_coordinates(Node* node) {
     qDebug() << "fetch_coordinates(" << node->ip <<")";
 
-    request.setUrl(QUrl("https://api.ipgeolocation.io/ipgeo?apiKey="+ geolocation_api_key +"&ip="+ node->ip +"&fields=geo"));
+    if( QHostAddress(node->ip).isNull() ) {
+        request.setUrl(QUrl("https://api.ipgeolocation.io/ipgeo?apiKey="+ geolocation_api_key +"&dns="+ node->ip +"&fields=geo"));
+    } else {
+        request.setUrl(QUrl("https://api.ipgeolocation.io/ipgeo?apiKey="+ geolocation_api_key +"&ip="+ node->ip +"&fields=geo"));
+    }
+
     QNetworkReply* reply = manager->get(request);
 
     connect(reply, &QNetworkReply::finished, [=]() {
@@ -100,7 +138,16 @@ void MainWindow::fetch_coordinates(Node* node) {
 
         } else {
             qWarning() << "fetch_coordinates( " << node->position << " ) failed";
-            // err
+
+            path.removeOne(node);
+
+            foreach(Node* n, path)
+                if(n->position > node->position)
+                    n->position--;
+
+            node_counter--;
+            //delete node;
+            node->dead = true;
         }
     });
 }
@@ -124,9 +171,7 @@ void MainWindow::draw_complete_path()
 {
     draw_node(origin);
     foreach(Node* node, path)
-    {
         draw_node(node);
-    }
 }
 
 void MainWindow::cleanup_trace()
@@ -156,10 +201,13 @@ int MainWindow::lat_to_y(QString lat, const int height) {
 void MainWindow::draw_node(Node* node)
 {
     qDebug() << "draw_node()";
+    if(node->dead)
+        return;
+
     QPixmap* pixmap = new QPixmap(ui->label_2->pixmap());
 
     QPainter painter(pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::Antialiasing, true);
 
     node->x = lon_to_x(node->lon, pixmap->width());
     node->y = lat_to_y(node->lat, pixmap->height());
@@ -171,24 +219,31 @@ void MainWindow::draw_node(Node* node)
         Node* previous;
         if(node->position == 0) {
             previous = origin;
+
         } else {
-            foreach(Node* prev, path) {
+            foreach(Node* prev, path)
                 if(prev->position == (node->position - 1))
                     previous = prev;
-            }
         }
 
-        qDebug() << "Line from " << node->position << " to " << previous->position;
-
         if(previous->x != 1024 && previous->y != 512) {
+            qDebug() << "Line from " << previous->x <<","<< previous->y <<" -> "<< node->x<<","<<node->y;
             painter.setPen( QPen(Qt::green, 4, Qt::DashDotLine, Qt::RoundCap) ); //QPen( Qt::green, 12, Qt::RightArrow, Qt::RoundCap ));
-            painter.drawLine( previous->x, previous->y, node->x, node->y  );
+
+            if(draw_arrows) {
+                Util::DrawLineWithArrow(painter, QPoint(previous->x, previous->y), QPoint(node->x, node->y));
+            } else {
+                painter.drawLine( previous->x, previous->y, node->x, node->y  );
+            }
         }
     }
 
     if(draw_markers) {
         const int s = 50;
-        QPixmap* image = new QPixmap(":/images/marker.png");
+        QPixmap* image;
+
+        image = orange_marker;
+
         painter.drawPixmap( node->x-s/2, node->y-s, s, s, *image);
     }
 
@@ -204,18 +259,22 @@ void MainWindow::start_trace()
 {
     qDebug() << "start_trace()";
 
+    target = new Node;
     target->ip = ui->lineEdit->text();
 
     if(target->ip.length() == 0) {
         return;
     }
 
+    raw_traceroute = "";
+    node_counter = 0;
+    path.clear();
+
     ui->statusbar->showMessage("Tracing ...");
     set_trace_status(false);
     ui->toolButton->setVisible(1);
 
     // reset world image
-    path.clear();
     ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
     draw_node(origin);
 
@@ -256,7 +315,9 @@ void MainWindow::stop_trace()
 void MainWindow::handle_output()
 {
     qDebug() << "handle_output()";
+
     QString data = (QString) process->readAllStandardOutput();
+    ui->statusbar->showMessage(data);
     raw_traceroute += data + "\n";
 
     // if includes "Trace complete" set finished
@@ -269,13 +330,14 @@ void MainWindow::handle_output()
 
         draw_complete_path();
         cleanup_trace();
+        return;
     }
 
     // extract IP adress (IPv4 for now)
     QRegularExpressionMatch match = ip_regex->match(data);
     if(match.hasMatch()) {
         QString ip = match.captured(1);
-        if(!ip.contains(target->ip) && !ip.contains("192.168.0.")) {
+        if(!ip.contains(target->ip) && !ip.contains("192.168.")) {
             qDebug() << "Found ip: " << ip;
 
             Node* temp = new Node(ip);
@@ -314,6 +376,16 @@ void MainWindow::toggle_lines()
     clear_world();
     draw_complete_path();
     ui->actionDraw_Lines->setChecked(draw_lines);
+    ui->actionDraw_arrows->setDisabled(!draw_lines);
+}
+
+void MainWindow::toggle_arrows()
+{
+    qDebug() << "toggle_arrows()";
+    draw_arrows = !draw_arrows;
+    clear_world();
+    draw_complete_path();
+    ui->actionDraw_arrows->setChecked(draw_arrows);
 }
 
 void MainWindow::gps_clipboard()
@@ -392,8 +464,3 @@ void MainWindow::add_api_key()
         fetch_origin();
     }
 }
-
-
-
-
-

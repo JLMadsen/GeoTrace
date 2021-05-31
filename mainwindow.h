@@ -15,6 +15,7 @@
 #include <QInputDialog>
 #include <QToolButton>
 #include <QAbstractButton>
+#include <QHostAddress>
 
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
@@ -33,8 +34,6 @@
 
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
-
-//#include <QGeoRoute>
 
 #include <regex>
 #include <string>
@@ -70,6 +69,7 @@ public:
     void export_image();
     void toggle_markers();
     void toggle_lines();
+    void toggle_arrows();
     void gps_clipboard();
     void xy_clipboard();
     void tr_clipboard();
@@ -89,7 +89,13 @@ public:
     QString raw_traceroute;
     bool draw_markers = true;
     bool draw_lines = true;
+    bool draw_arrows = false;
     int node_counter;
+
+    // images
+    QPixmap* orange_marker;
+    QPixmap* green_marker;
+    QPixmap* purple_marker;
 
     // api key, get your own.
     QString geolocation_api_key;
@@ -97,6 +103,7 @@ public:
     // traceroute process
     QProcess* process;
 
+    Node* selected;
     Node* origin;
     Node* target; // temp node
     QVector<Node*> path;
