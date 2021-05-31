@@ -11,11 +11,15 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>GeoTracer</string>
+   <string>GeoTrace</string>
   </property>
   <property name="styleSheet">
    <string notr="true">* {
 	margin: 2px;
+}
+
+QAbstractButton {
+	margin: 0px;
 }
 
 QMainWindow {
@@ -52,11 +56,15 @@ QLabel[objectName^=&quot;label_2&quot;] {
 	border-radius: 10px;
 }
 
+/*QLineEdit[text=&quot;&quot;] { 
+	color:gray; 
+}*/
 QLineEdit {
 	background: white;
 	padding: 5px;
 	border-radius: 10px;
 	border: 0px;
+	color: grey;
 }
 
 QStatusBar {
@@ -94,7 +102,7 @@ QStatusBar {
           <bool>false</bool>
          </property>
          <property name="placeholderText">
-          <string>_</string>
+          <string>Target IP / DNS</string>
          </property>
         </widget>
        </item>
@@ -207,6 +215,7 @@ QStatusBar {
     <addaction name="separator"/>
     <addaction name="actionDraw_Markers"/>
     <addaction name="actionDraw_Lines"/>
+    <addaction name="actionDraw_arrows"/>
     <addaction name="separator"/>
     <addaction name="actionAdd_API_key"/>
    </widget>
@@ -219,11 +228,17 @@ QStatusBar {
    </property>
   </action>
   <action name="actionDraw_Markers">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Draw markers</string>
    </property>
   </action>
   <action name="actionDraw_Lines">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Draw lines</string>
    </property>
@@ -246,6 +261,14 @@ QStatusBar {
   <action name="actionCopy_Traceroute_to_Clipboard">
    <property name="text">
     <string>Copy Traceroute to Clipboard</string>
+   </property>
+  </action>
+  <action name="actionDraw_arrows">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Draw arrows</string>
    </property>
   </action>
  </widget>
