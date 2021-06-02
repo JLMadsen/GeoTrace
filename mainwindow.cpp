@@ -62,9 +62,9 @@ MainWindow::MainWindow(QWidget *parent)
         fetch_origin();
     }
 
-    orange_marker = new QPixmap(":/images/marker.png");
-    green_marker = new QPixmap(":/images/marker_green.png");
-    purple_marker = new QPixmap(":/images/marker_magenta.png");
+    orange_marker = new QPixmap(":/resources/resources/marker.png");
+    green_marker = new QPixmap(":/resources/resources/marker_green.png");
+    purple_marker = new QPixmap(":/resources/resources/marker_magenta.png");
 }
 
 MainWindow::~MainWindow()
@@ -201,7 +201,7 @@ void MainWindow::set_trace_status(bool ready)
 
 void MainWindow::clear_world()
 {
-    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
+    ui->label_2->setPixmap( QPixmap(":/resources/resources/world.jpg") );
 }
 
 int MainWindow::lon_to_x(QString lon, const int width) {
@@ -287,7 +287,7 @@ void MainWindow::start_trace()
     ui->listWidget->clear();
     draw_listview();
 
-    ui->label_2->setPixmap( QPixmap(":/images/world.jpg") );
+    ui->label_2->setPixmap( QPixmap(":/resources/resources/world.jpg") );
     draw_node(origin);
 
     raw_traceroute = "";

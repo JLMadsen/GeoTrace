@@ -1,10 +1,10 @@
 <RCC>
-    <qresource prefix="/images">
-        <file>world.jpg</file>
-        <file>marker.png</file>
-        <file>favicon.ico</file>
+    <qresource prefix="/resources">
         <file>README.md</file>
-        <file>marker_green.png</file>
-        <file>marker_magenta.png</file>
+        <file>resources/favicon.ico</file>
+        <file>resources/marker.png</file>
+        <file>resources/marker_green.png</file>
+        <file>resources/marker_magenta.png</file>
+        <file>resources/world.jpg</file>
     </qresource>
 </RCC>

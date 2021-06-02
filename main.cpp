@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     QFont font("consolas");
     font.setStyleHint(QFont::Monospace);
     app.setFont(font);
-    app.setWindowIcon(QIcon(":/images/favicon.ico"));
+    app.setWindowIcon(QIcon(":/resources/resources/favicon.ico"));
     MainWindow window;
     window.show();
     return app.exec();
