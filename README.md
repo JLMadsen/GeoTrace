@@ -1,4 +1,4 @@
-# 🌍 GeoTrace
+# 🌍 _GeoTrace_
 Plots a traceroute path on a map. 
 
 <p align="center">
@@ -7,7 +7,7 @@ Plots a traceroute path on a map.
 
 Made with <a href="https://www.qt.io/">Qt</a>!
 
-## _Features_
+## Features
 
 * Draw with or without orange markers.
 * Draw with or without green lines.
@@ -16,11 +16,23 @@ Made with <a href="https://www.qt.io/">Qt</a>!
 * Export x, y path.
 * Export traceroute output.
 
-## _Usage_
+## Usage
 
 Create an enviorment variable, `tr_api_key`, with a key from https://ipgeolocation.io/.
 
-## _Options_
+# Build
+
+Prerequisites:
+
+* Qmake
+* Mingw32-make
+* windeployqt
+
+```sh
+sh compile.sh
+```
+
+## Options
 
 There are a couple optional ways to draw the map:
 
@@ -29,7 +41,7 @@ Lines                   |Arrows                   | Markers
 ![](./examples/line.png)|![](./examples/arrow.png)|![](./examples/markers.png)|
 
 
-## _Todo_
+## Todo
 
 * Make GUI elements responsive.
 * Fix random crashes.
@@ -37,7 +49,7 @@ Lines                   |Arrows                   | Markers
 * Interactive map.
 * Make short paths easier to see.
 
-## _About_
+## About
 
 This program was made in the span of a week as one of my side projects during the summer.
 
