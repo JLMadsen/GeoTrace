@@ -11,17 +11,17 @@ MainWindow::MainWindow(QWidget *parent)
     origin = new Node();
     target = new Node();
 
-    // attach button events to functions   actionDraw_arrows
-    connect(ui->actionCopy_Traceroute_to_Clipboard, &QAction::triggered, this, &MainWindow::tr_clipboard);
-    connect(ui->actionCopy_GPS_to_Clipboard, &QAction::triggered, this, &MainWindow::gps_clipboard );
-    connect(ui->actionCopy_X_Y_to_Clipboard, &QAction::triggered, this, &MainWindow::xy_clipboard );
-    connect(ui->actionDraw_Markers, &QAction::triggered, this, &MainWindow::toggle_markers );
-    connect(ui->actionExport_to_PNG, &QAction::triggered, this, &MainWindow::export_image );
-    connect(ui->actionDraw_arrows, &QAction::triggered, this, &MainWindow::toggle_arrows );
-    connect(ui->actionDraw_Lines, &QAction::triggered, this, &MainWindow::toggle_lines );
-    connect(ui->actionAdd_API_key, &QAction::triggered, this, &MainWindow::add_api_key );
-    connect(ui->pushButton, &QAbstractButton::released, this, &MainWindow::start_trace );
-    connect(ui->toolButton, &QAbstractButton::released, this, &MainWindow::stop_trace );
+    // attach button events to functions
+    connect(ui->actionCopy_Traceroute_to_Clipboard, &QAction::triggered,        this, &MainWindow::tr_clipboard);
+    connect(ui->actionCopy_GPS_to_Clipboard,        &QAction::triggered,        this, &MainWindow::gps_clipboard );
+    connect(ui->actionCopy_X_Y_to_Clipboard,        &QAction::triggered,        this, &MainWindow::xy_clipboard );
+    connect(ui->actionDraw_Markers,                 &QAction::triggered,        this, &MainWindow::toggle_markers );
+    connect(ui->actionExport_to_PNG,                &QAction::triggered,        this, &MainWindow::export_image );
+    connect(ui->actionDraw_arrows,                  &QAction::triggered,        this, &MainWindow::toggle_arrows );
+    connect(ui->actionDraw_Lines,                   &QAction::triggered,        this, &MainWindow::toggle_lines );
+    connect(ui->actionAdd_API_key,                  &QAction::triggered,        this, &MainWindow::add_api_key );
+    connect(ui->pushButton,                         &QAbstractButton::released, this, &MainWindow::start_trace );
+    connect(ui->toolButton,                         &QAbstractButton::released, this, &MainWindow::stop_trace );
 
     ui->actionDraw_Lines->setCheckable(true);
     ui->actionDraw_Lines->setChecked(draw_lines);
@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
 
     orange_marker = new QPixmap(":/resources/resources/marker.png");
-    green_marker = new QPixmap(":/resources/resources/marker_green.png");
+    green_marker  = new QPixmap(":/resources/resources/marker_green.png");
     purple_marker = new QPixmap(":/resources/resources/marker_magenta.png");
 }
 
@@ -74,16 +74,14 @@ MainWindow::~MainWindow()
     delete selected;
     delete origin;
     delete target;
-
-    foreach(Node* n, path)
-        delete n;
-
     delete ip_regex;
     delete process;
-
     delete green_marker;
     delete orange_marker;
     delete purple_marker;
+
+    foreach(Node* n, path)
+        delete n;
 
     process->close();
 }
@@ -139,13 +137,11 @@ void MainWindow::fetch_coordinates(Node* node) {
         {
             QJsonObject obj = QJsonDocument::fromJson( QString(reply->readAll()).toUtf8() ).object();
 
-            // keep as string as Qt struggles with toString from double.
-            node->lat = obj["latitude"].toString();//.toDouble();
-            node->lon = obj["longitude"].toString();//.toDouble();
+            node->lat = obj["latitude"].toString();
+            node->lon = obj["longitude"].toString();
 
             draw_listview();
             draw_node(node);
-            //draw_complete_path();
 
         } else
         {
@@ -158,7 +154,6 @@ void MainWindow::fetch_coordinates(Node* node) {
                     n->position--;
 
             node_counter--;
-            //delete node;
             node->dead = true;
         }
     });
@@ -170,12 +165,16 @@ void MainWindow::draw_listview()
     ui->listWidget->clear();
 
     ui->listWidget->addItem(origin->ip);
-    //ui->listWidget->addItem(("("+ origin->lat +", "+ origin->lon +")"));
+
+    if(draw_coordinates)
+        ui->listWidget->addItem(("("+ origin->lat +", "+ origin->lon +")"));
 
     foreach(Node* node, path)
     {
         ui->listWidget->addItem(node->ip);
-        //ui->listWidget->addItem(("("+ node->lat +", "+ node->lon +")"));
+
+        if(draw_coordinates)
+            ui->listWidget->addItem(("("+ node->lat +", "+ node->lon +")"));
     }
 }
 
@@ -239,10 +238,10 @@ void MainWindow::draw_node(Node* node)
                 if(prev->position == (node->position - 1))
                     previous = prev;
         }
-        if(previous->x != 1024 && previous->y != 512)
+        if( (previous->x != 1024 && previous->y != 512) || previous->dead)
         {
             qDebug() << "Line from " << previous->x <<","<< previous->y <<" -> "<< node->x<<","<<node->y;
-            painter.setPen( QPen(Qt::green, 4, Qt::DashDotLine, Qt::RoundCap) ); //QPen( Qt::green, 12, Qt::RightArrow, Qt::RoundCap ));
+            painter.setPen( QPen(Qt::green, 4, Qt::DashDotLine, Qt::RoundCap) );
 
             if(draw_arrows) {
                 Util::DrawLineWithArrow(painter, QPoint(previous->x, previous->y), QPoint(node->x, node->y));
@@ -269,6 +268,7 @@ void MainWindow::draw_node(Node* node)
 /**
  * TODO: Add cancellation of trace.
  * TODO: Add visuals to ongoing trace.
+ * TODO: Check if input is valid IP or Domain
  */
 void MainWindow::start_trace()
 {
@@ -281,6 +281,7 @@ void MainWindow::start_trace()
     {
         return;
     }
+
     path.clear();
     node_counter = 0;
 
@@ -330,6 +331,7 @@ void MainWindow::stop_trace()
     cleanup_trace();
 }
 
+// TODO: Check if trace failed
 void MainWindow::handle_output()
 {
     qDebug() << "handle_output()";

@@ -90,6 +90,7 @@ public:
     bool draw_markers = true;
     bool draw_lines = true;
     bool draw_arrows = false;
+    bool draw_coordinates = false;
     int node_counter;
 
     // images
