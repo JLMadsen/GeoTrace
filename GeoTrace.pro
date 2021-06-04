@@ -6,7 +6,7 @@ QT += quickwidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-RC_ICONS = favicon.ico
+RC_ICONS = resources/favicon.ico
 
 CONFIG += c++11
 CONFIG += static
