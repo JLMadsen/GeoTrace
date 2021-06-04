@@ -21,7 +21,6 @@ get_ssl()
 
 echo "Building Qt project - ${APP}"
 
-# these need to be in path.
 echo "Run qmake"
 qmake                           > /dev/null 2>&1
 echo "Run mingw32-make"
@@ -29,37 +28,47 @@ mingw32-make                    > /dev/null 2>&1
 
 cd ./release
 
-mkdir Windows
-mkdir Linux
+sleep 1
 
-echo "Delete build files - *.o"
+echo "Delete build files"
 find . -name "*.o" -type f -delete
-echo "Delete build files - *.h"
 find . -name "*.h" -type f -delete
-echo "Delete build files - *.cpp"
 find . -name "*.cpp" -type f -delete
 
-cp "${APP}.exe" "Windows/${APP}.exe"
-cp "${APP}.exe" "Linux/${APP}.exe"
+if ! hash windeployqt &> /dev/null
+then
+    echo "Install windeployqt, and/or add it to path, to build for Windows"
+else
+    mkdir Windows
+    cp "${APP}.exe" "Windows/${APP}.exe"
 
-cd ./Windows
+    cd ./Windows
 
-echo "Run windeployqt"
-windeployqt "${APP}.exe"            > /dev/null 2>&1
-get_ssl
+    echo "Run windeployqt"
+    windeployqt "${APP}.exe"            > /dev/null 2>&1
+    get_ssl
 
-echo "Zip Windows"
-tar -cvf "${APP}_Windows.zip" *     > /dev/null 2>&1
+    echo "Zip Windows"
+    tar -cvf "${APP}_Windows.zip" *     > /dev/null 2>&1
+fi
 
-cd ../Linux
+if ! hash linuxdeployqt &> /dev/null
+then
+    echo "Install linuxdeployqt, and/or add it to path, to build for Linux"
+else
+    mkdir Linux
+    cp "${APP}.exe" "Linux/${APP}.exe"
 
-echo "Run linuxdeployqt"
-# linuxdeployqt "${APP}.exe"          > /dev/null 2>&1
-get_ssl
+    cd ../Linux
 
-echo "Zip Linux"
-tar -cvf "${APP}_Linux.zip" *       > /dev/null 2>&1
+    echo "Run linuxdeployqt"
+    linuxdeployqt "${APP}.exe"          > /dev/null 2>&1
+    get_ssl
+
+    echo "Zip Linux"
+    tar -cvf "${APP}_Linux.zip" *       > /dev/null 2>&1
+fi
 
 echo "Build complete"
 # sleep to show echos
-sleep 4
+sleep 2
