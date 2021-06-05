@@ -12,14 +12,29 @@ APP="GeoTrace"
 
 get_ssl()
 {
+    # todo: download to ./release and copy to OS builds
     # Guide: https://slproweb.com/download/Win64OpenSSL_Light-1_1_1k.exe
-    echo "Copy libssl"
+    echo "Fetch libssl"
     curl https://denlurevind.com/content/libssl-1_1-x64.dll -O      > /dev/null 2>&1
-    echo "Copy libcrypto"
+    echo "Fetch libcrypto"
     curl https://denlurevind.com/content/libcrypto-1_1-x64.dll -O   > /dev/null 2>&1
 }
 
 echo "Building Qt project - ${APP}"
+
+if ! hash qmake &> /dev/null
+then
+    echo "qmake could not be found"
+    exit
+fi
+
+if ! hash mingw32-make &> /dev/null
+then
+    echo "mingw32-make could not be found"
+    exit
+fi
+
+rm -rf ./release
 
 echo "Run qmake"
 qmake                           > /dev/null 2>&1
@@ -28,7 +43,7 @@ mingw32-make                    > /dev/null 2>&1
 
 cd ./release
 
-sleep 1
+sleep .5
 
 echo "Delete build files"
 find . -name "*.o" -type f -delete
@@ -50,6 +65,8 @@ else
 
     echo "Zip Windows"
     tar -cvf "${APP}_Windows.zip" *     > /dev/null 2>&1
+    mv "${APP}_Windows.zip" ../.
+    cd ..
 fi
 
 if ! hash linuxdeployqt &> /dev/null
@@ -59,7 +76,7 @@ else
     mkdir Linux
     cp "${APP}.exe" "Linux/${APP}.exe"
 
-    cd ../Linux
+    cd ./Linux
 
     echo "Run linuxdeployqt"
     linuxdeployqt "${APP}.exe"          > /dev/null 2>&1
@@ -67,7 +84,11 @@ else
 
     echo "Zip Linux"
     tar -cvf "${APP}_Linux.zip" *       > /dev/null 2>&1
+    mv "${APP}_Linux.zip" ../.
+    cd ..
 fi
+
+rm "${APP}.exe"
 
 echo "Build complete"
 # sleep to show echos
